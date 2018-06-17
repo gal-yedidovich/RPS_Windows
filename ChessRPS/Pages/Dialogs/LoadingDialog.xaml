@@ -1,0 +1,21 @@
+﻿<Window x:Class="ChessRPS.Pages.LoadingDialog"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:local="clr-namespace:ChessRPS.Pages"
+    mc:Ignorable="d" Height="100" Width="250"
+	WindowStartupLocation="CenterScreen" 
+		WindowStyle="None">
+	<Grid>
+		<StackPanel VerticalAlignment="Center">
+			<TextBlock 
+				Name="DialogTitle"
+				Text="Title" 
+				HorizontalAlignment="Center"
+				Padding="5"/>
+
+			<ProgressBar Height="10" IsIndeterminate="True" Margin="5"/>
+		</StackPanel>
+	</Grid>
+</Window>
