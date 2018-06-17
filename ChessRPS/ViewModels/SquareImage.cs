@@ -8,7 +8,7 @@ using System.Windows.Controls;
 
 namespace Client.ViewModels
 {
-	class SquareImage
+	public class SquareImage
 	{
 		public Square Square { get; set; }
 		public Image Image { get; set; }

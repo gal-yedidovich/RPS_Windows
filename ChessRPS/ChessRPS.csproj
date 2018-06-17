@@ -65,7 +65,6 @@
     <Compile Include="Pages\Dialogs\InviteDialog.xaml.cs">
       <DependentUpon>InviteDialog.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Pages\Dialogs\RpsDialog.cs" />
     <Compile Include="Pages\Dialogs\LoadingDialog.xaml.cs">
       <DependentUpon>LoadingDialog.xaml</DependentUpon>
     </Compile>

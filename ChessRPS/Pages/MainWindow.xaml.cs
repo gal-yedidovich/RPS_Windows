@@ -38,17 +38,19 @@ namespace ChessRPS
 
 			InitBoard();
 			State = new SelectFlagState(this);
-			GameSocket.Instance.OnBroadcast = OnReceivedData;
+			GameSocket.Instance.OnBroadcast += OnReceivedData;
 			GameId = gameId;
 		}
 
 		private void OnReceivedData(JObject json)
 		{
-			if ((string)json["type"] == "msg")
+            var type = (string)json["type"];
+
+            if (type == "msg")
 			{
 				//handle chat
 			}
-			else State.OnReceivedData(json);
+			else if(type != "draw") State.OnReceivedData(json); //draw is not for us
 		}
 
 		private void InitBoard()
@@ -182,5 +184,11 @@ namespace ChessRPS
 			MsgTxt.Text = $"You {(won ? "Won!" : "lost")}";
 			State = new GameOverState(this);
 		}
-	}
+
+        protected override void OnClosed(EventArgs e)
+        {
+            GameSocket.Instance.OnBroadcast -= OnReceivedData; //clean up
+            base.OnClosed(e);
+        }
+    }
 }

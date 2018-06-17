@@ -1,4 +1,5 @@
-﻿using ChessRPS.Utils;
+﻿using ChessRPS.Pages.Dialogs;
+using ChessRPS.Utils;
 using Client;
 using Client.models;
 using Client.Utils;
@@ -293,7 +294,7 @@ namespace ChessRPS.Pages.MainWindowStates
 						}
 
 						int result = (int)json["battle"];
-						Moves.Battle(_context, result, attacker: from_square, target: to_square);
+						Moves.Battle(result, attacker: from_square, target: to_square);
 					}
 					else Moves.MoveTo(from_square, to_square);
 				});
@@ -483,7 +484,7 @@ namespace ChessRPS.Pages.MainWindowStates
 			if (response.ContainsKey("battle")) //do battle
 			{
 				int result = (int)response["battle"]; //get battle results
-				_context.Dispatcher.Invoke(() => Moves.Battle(_context, result, _selected, target));
+				_context.Dispatcher.Invoke(() => Moves.Battle(result, _selected, target));
 			}
 			else _context.Dispatcher.Invoke(() => Moves.MoveTo(_selected, target));
 
@@ -543,7 +544,7 @@ namespace ChessRPS.Pages.MainWindowStates
 
 	internal static class Moves
 	{
-		internal static void Battle(MainWindow context, int result, SquareImage attacker, SquareImage target)
+		internal static void Battle(int result, SquareImage attacker, SquareImage target)
 		{
 			if (result == -1) Kill(attacker);
 			else if (result == 1) MoveTo(attacker, target);
@@ -562,12 +563,17 @@ namespace ChessRPS.Pages.MainWindowStates
 			selected.Square.Type = SquareType.Empty;
 		}
 
-		internal static async void ResolveDraw(SquareImage seleceted, SquareImage target)
+		internal static void ResolveDraw(SquareImage seleceted, SquareImage target)
 		{
-			//TODO FIX
+            //TODO FIX
 
-			//do dialog
-			//RpsDialog dialog = new RpsDialog(_context, _selected, target);
+            //do dialog
+            //RpsDialog dialog = new RpsDialog(_context, _selected, target);
+            var draw = new DrawRPS(seleceted, target);
+            draw.ShowDialog();
+
+            //Battle(result, seleceted, target); 
+            
 
 			//await dialog.ShowAsync();
 

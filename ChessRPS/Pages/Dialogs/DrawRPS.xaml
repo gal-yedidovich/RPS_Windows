@@ -5,10 +5,11 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ChessRPS.Pages.Dialogs"
         mc:Ignorable="d"
-        Title="DrawRPS" Height="450" Width="800">
+        Title="DrawRPS" Height="450" Width="600">
     <Grid Name="rootView">
         <Grid.RowDefinitions>
             <RowDefinition Height="*"/>
+            <RowDefinition Height="0.3*"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
@@ -18,5 +19,10 @@
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
 
+        <ProgressBar 
+            Name="loadBar"
+            Grid.Row="1"
+            Grid.ColumnSpan="3"
+            Margin="100 20 100 20"/>
     </Grid>
 </Window>
