@@ -1,6 +1,7 @@
 ﻿using ChessRPS.Utils;
 using Client;
 using Client.models;
+using Client.Utils;
 using Client.ViewModels;
 using Newtonsoft.Json.Linq;
 using System;
@@ -19,215 +20,247 @@ using System.Windows.Shapes;
 
 namespace ChessRPS.Pages.Dialogs
 {
-    /// <summary>
-    /// Interaction logic for DrawRPS.xaml
-    /// </summary>
-    public partial class DrawRPS
-    {
-        private IDialogState State { get; set; }
-        internal SquareImage[] Opponent { get; set; }
-        internal SquareImage Attacker { get; set; }
-        internal SquareImage Target { get; set; }
+	public partial class DrawRPS
+	{
+		private IDialogState State { get; set; }
+		private SquareImage[] Opponent { get; set; }
+		private SquareImage attacker, target;
+		private int gameID;
 
-        public DrawRPS(SquareImage attacker, SquareImage target)
-        {
-            InitializeComponent();
+		public DrawRPS(SquareImage attacker, SquareImage target, int gameID)
+		{
+			InitializeComponent();
 
-            State = new ChoosingState(this);
-            Attacker = attacker;
-            Target = target;
+			State = new ChoosingState(this);
+			this.attacker = attacker; //dependency injection, in order to change those squares later
+			this.target = target;
+			this.gameID = gameID;
 
-            GameSocket.Instance.OnBroadcast += OnReceive;
-            InitBoard();
-        }
+			GameSocket.Instance.OnBroadcast += OnReceive; //register to event
+			InitBoard();
+		}
 
-        private void OnReceive(JObject json)
-        {
-            string selection = (string)json["selection"];
+		/// <summary>
+		/// Event handler for OnBroadcast event. when data is receive from GameSocket
+		/// </summary>
+		/// <param name="json">data from server</param>
+		private void OnReceive(JObject json)
+		{
+			State.OnOpponentSelected(json);
+		}
 
-            State.OnOpponentSelected(selection);
-        }
+		private void InitBoard()
+		{
+			string[] paths = { ImageFactory.RED_ROCK, ImageFactory.RED_PAPER, ImageFactory.RED_SCISSORS };
 
-        private void InitBoard()
-        {
-            string[] paths = { ImageFactory.RED_ROCK, ImageFactory.RED_PAPER, ImageFactory.RED_SCISSORS };
+			Opponent = new SquareImage[3];
+			SquareImage[] squares = new SquareImage[3];
 
-            Opponent = new SquareImage[3];
-            SquareImage[] squares = new SquareImage[3];
-
-            for (int i = 0; i < 3; i++)
-            {
-                //set opponent squares
-                {
-                    var (button, border, img) = CreateView(ImageFactory.BLUE);
-                    Opponent[i] = new SquareImage
-                    {
-                        Button = button,
-                        Border = border,
-                        Image = img,
-                        Square = new Square(0, i)
-                        {
-                            Type = SquareType.Rock + i
-                        }
-                    };
+			for (int i = 0; i < 3; i++)
+			{
+				//set opponent squares
+				{
+					var (button, border, img) = CreateView(ImageFactory.BLUE);
+					Opponent[i] = new SquareImage
+					{
+						Button = button,
+						Border = border,
+						Image = img,
+						Square = new Square(0, i)
+						{
+							Type = SquareType.Rock + i
+						}
+					};
 
 
-                    Grid.SetColumn(button, i);
-                    Grid.SetRow(button, 0);
-                    rootView.Children.Add(button);
-                }
+					Grid.SetColumn(button, i);
+					Grid.SetRow(button, 0);
+					rootView.Children.Add(button);
+				}
 
-                //set my square
-                {
-                    var (button, border, img) = CreateView(paths[i]);
+				//set my square
+				{
+					const int row = 2;
+					var (button, border, img) = CreateView(paths[i]);
 
-                    squares[i] = new SquareImage()
-                    {
-                        Button = button,
-                        Image = img,
-                        Border = border,
-                        Square = new Square(1, i)
-                        {
-                            Type = SquareType.Rock + i
-                        }
-                    };
+					squares[i] = new SquareImage()
+					{
+						Button = button,
+						Image = img,
+						Border = border,
+						Square = new Square(row, i)
+						{
+							Type = SquareType.Rock + i
+						}
+					};
 
-                    int index = i;
-                    button.Click += (s, e) =>
-                    {
-                        State.OnSelecting(squares[index]);
-                    };
+					int index = i;
+					button.Click += (s, e) =>
+					{
+						State.OnSelecting(squares[index]);
+					};
 
-                    Grid.SetColumn(button, i);
-                    Grid.SetRow(button, 1);
-                    rootView.Children.Add(button);
-                }
-            }
-        }
+					Grid.SetColumn(button, i);
+					Grid.SetRow(button, row);
+					rootView.Children.Add(button);
+				}
+			}
+		}
 
-        private static (Button button, Border border, Image img) CreateView(string path)
-        {
-            var img = new Image
-            {
-                Source = ImageFactory.LoadImage(path)
-            };
+		private (Button button, Border border, Image img) CreateView(string path)
+		{
+			var img = new Image
+			{
+				Source = ImageFactory.LoadImage(path)
+			};
 
-            var border = new Border
-            {
-                BorderThickness = new Thickness(1),
-                BorderBrush = new SolidColorBrush(Colors.Black),
-                Child = img
-            };
+			var border = new Border
+			{
+				BorderThickness = new Thickness(1),
+				BorderBrush = new SolidColorBrush(Colors.Black),
+				Child = img
+			};
 
-            var button = new Button
-            {
-                Content = border,
-                Padding = new Thickness(0)
-            };
-            return (button, border, img);
-        }
+			var button = new Button
+			{
+				Content = border,
+				Padding = new Thickness(0)
+			};
+			return (button, border, img);
+		}
 
-        #region States
-        private interface IDialogState
-        {
-            void OnSelecting(SquareImage squareImage);
-            void OnOpponentSelected(string selected);
-        }
+		private void ResolveDraw(SquareImage mySelection, string oppSelection, int result)
+		{
+			SquareType type;
+			int index;
+			switch (oppSelection.ToLower())
+			{
+				case "rock":
+					type = SquareType.Rock;
+					index = 0;
+					break;
+				case "paper":
+					type = SquareType.Paper;
+					index = 1;
+					break;
+				default:
+					type = SquareType.Scissors;
+					index = 2;
+					break;
+			}
 
-        private class ChoosingState : IDialogState
-        {
-            private readonly DrawRPS context;
-            private string opponentSelection;
-            public ChoosingState(DrawRPS context)
-            {
-                this.context = context;
-                opponentSelection = null;
-            }
+			//hide other squares
+			Dispatcher.Invoke(async () =>
+			{
+				Opponent[(index + 1) % 3].Button.Visibility = Visibility.Collapsed;
+				Opponent[(index + 2) % 3].Button.Visibility = Visibility.Collapsed;
 
-            public void OnOpponentSelected(string selected)
-            {
-                opponentSelection = selected;
-            }
+				Opponent[index].Image.Source = ImageFactory.LoadBlueImage(type);
+				var opp_tuple = (Opponent[index].Square.Type, Opponent[index].Image.Source);
+				var my_tuple = (mySelection.Square.Type, mySelection.Image.Source);
 
-            public void OnSelecting(SquareImage squareImage)
-            {
-                squareImage.Button.Background = new SolidColorBrush(Colors.Green);
-                if (opponentSelection != null) //opponent has selected
-                {
+				await Task.Delay(500); //for UX
 
-                }
-            }
-        }
+				if (attacker.Square.MyRPS) UpdateSquares(my_tuple, opp_tuple); //im attacking
+				else UpdateSquares(opp_tuple, my_tuple);
 
-        /// <summary>
-        /// state definition, for waiting for opponent after i've selected
-        /// </summary>
-        private class WaitingState : IDialogState
-        {
-            public void OnOpponentSelected(string selected)
-            {
-                //
-            }
+				MainWindowStates.Moves.Battle(result, attacker, target, gameID);
+				this.Close();
+			});
+		}
 
-            public void OnSelecting(SquareImage squareImage)
-            {
-                //
-            }
-        }
+		private void UpdateSquares((SquareType type, ImageSource source) attacker, (SquareType type, ImageSource source) target)
+		{
+			this.attacker.Image.Source = attacker.source;
+			this.attacker.Square.Type = attacker.type;
 
-        private async void ResolveDraw(string oppSelection, int result)
-        {
-            SquareType type;
-            int index;
-            switch (oppSelection.ToLower())
-            {
-                case "rock":
-                    type = SquareType.Rock;
-                    index = 0;
-                    break;
-                case "paper":
-                    type = SquareType.Paper;
-                    index = 1;
-                    break;
-                default:
-                    type = SquareType.Scissors;
-                    index = 2;
-                    break;
-            }
+			this.target.Image.Source = target.source;
+			this.target.Square.Type = target.type;
+		}
 
-            //hide other squares
-            Opponent[(index + 1) % 3].Button.Visibility = Visibility.Collapsed;
-            Opponent[(index + 2) % 3].Button.Visibility = Visibility.Collapsed;
+		protected override void OnClosed(EventArgs e)
+		{
+			GameSocket.Instance.OnBroadcast -= OnReceive; //un register from event
+			base.OnClosed(e);
+		}
 
-            Opponent[index].Image.Source = ImageFactory.LoadBlueImage(type);
-            await Task.Delay(500); //for UX
+		#region States
+		private interface IDialogState
+		{
+			void OnSelecting(SquareImage squareImage);
+			void OnOpponentSelected(JObject json);
+		}
 
-            if (Attacker.Square.MyRPS) //im attacking
-            {
-                Attacker.Image.Source = Attacker.Image.Source;
-                Attacker.Square.Type = Attacker.Square.Type;
+		private class ChoosingState : IDialogState
+		{
+			private readonly DrawRPS context;
+			private string opponentSelection;
 
-                Target.Image.Source = Target.Image.Source;
-                Target.Square.Type = Target.Square.Type;
-            }
-            else
-            {
-                Attacker.Image.Source = Target.Image.Source;
-                Attacker.Square.Type = Target.Square.Type;
+			public ChoosingState(DrawRPS context)
+			{
+				this.context = context;
+				opponentSelection = null;
+			}
 
-                Target.Image.Source = Attacker.Image.Source;
-                Target.Square.Type = Attacker.Square.Type;
-            }
+			public void OnOpponentSelected(JObject json)
+			{
+				string selected = (string)json["opponent"];
+				opponentSelection = selected;
 
-            MainWindowStates.Moves.Battle(result, Attacker, Target);
-            this.Close();
-        }
-        #endregion
+				//show that opponent has selected
+			}
 
-        protected override void OnClosed(EventArgs e)
-        {
-            GameSocket.Instance.OnBroadcast -= OnReceive;
-            base.OnClosed(e);
-        }
-    }
+			public async void OnSelecting(SquareImage selected)
+			{
+				selected.Button.Background = new SolidColorBrush(Colors.Green);
+
+				//send selection to server
+				context.loadBar.Visibility = Visibility.Visible;
+				var response = await MyHttpClient.Game.SendRequestAsync(MyHttpClient.Endpoints.DRAW, new JObject
+				{
+					["token"] = Prefs.Instance.Token,
+					["decision"] = selected.Square.Type.ToString(),
+					["gameId"] = context.gameID,
+				});
+
+				if (opponentSelection != null) //opponent has selected
+				{
+					context.loadBar.Visibility = Visibility.Collapsed;
+					int result = (int)response["result"];
+					context.ResolveDraw(selected, opponentSelection, result);
+
+					context.Close();
+				}
+				else context.State = new WaitingState(context, selected); //wait for opponent
+			}
+		}
+
+		private class WaitingState : IDialogState
+		{
+			private readonly DrawRPS context;
+			private readonly SquareImage mySelection;
+
+			public WaitingState(DrawRPS context, SquareImage mySelection)
+			{
+				this.context = context;
+				this.mySelection = mySelection;
+				//start progress bar
+				context.loadBar.Visibility = Visibility.Visible;
+			}
+
+			public void OnOpponentSelected(JObject json)
+			{
+				string selected = (string)json["opponent"];
+				int result = (int)json["result"];
+
+				context.ResolveDraw(mySelection, selected, result);
+				//stop progress bar
+				context.loadBar.Visibility = Visibility.Collapsed;
+				context.Close();
+			}
+
+			public void OnSelecting(SquareImage squareImage) { }//Do Nothing
+		}
+		#endregion
+	}
 }

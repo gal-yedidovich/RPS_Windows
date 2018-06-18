@@ -44,11 +44,11 @@ namespace ChessRPS.Utils
 				int size = BitConverter.ToInt32(buffer, 0); //get size of data
 				buffer = new byte[size];
 				socket.Receive(buffer); //receive actual data
-
-				OnBroadcast?.Invoke(JObject.Parse(Encoding.UTF8.GetString(buffer)));
+				int test = Prefs.Instance.Token;
+				OnBroadcast.Invoke(JObject.Parse(Encoding.UTF8.GetString(buffer)));
 			}
 		}
 
-		public Action<JObject> OnBroadcast { get; set; }
+		public event Action<JObject> OnBroadcast;
 	}
 }

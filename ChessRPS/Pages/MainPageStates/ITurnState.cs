@@ -294,7 +294,7 @@ namespace ChessRPS.Pages.MainWindowStates
 						}
 
 						int result = (int)json["battle"];
-						Moves.Battle(result, attacker: from_square, target: to_square);
+						Moves.Battle(result, attacker: from_square, target: to_square, gameID: _context.GameId);
 					}
 					else Moves.MoveTo(from_square, to_square);
 				});
@@ -484,7 +484,7 @@ namespace ChessRPS.Pages.MainWindowStates
 			if (response.ContainsKey("battle")) //do battle
 			{
 				int result = (int)response["battle"]; //get battle results
-				_context.Dispatcher.Invoke(() => Moves.Battle(result, _selected, target));
+				_context.Dispatcher.Invoke(() => Moves.Battle(result, _selected, target, _context.GameId));
 			}
 			else _context.Dispatcher.Invoke(() => Moves.MoveTo(_selected, target));
 
@@ -544,12 +544,12 @@ namespace ChessRPS.Pages.MainWindowStates
 
 	internal static class Moves
 	{
-		internal static void Battle(int result, SquareImage attacker, SquareImage target)
+		internal static void Battle(int result, SquareImage attacker, SquareImage target, int gameID)
 		{
-			if (result == -1) Kill(attacker);
-			else if (result == 1) MoveTo(attacker, target);
-			else if (result == 0) ResolveDraw(attacker, target);
-			else throw new Exception("unkown result");
+			if (result == -1) Kill(attacker); //attack lost
+			else if (result == 1) MoveTo(attacker, target); //attack won
+			else if (result == 0) ResolveDraw(attacker, target, gameID); // draw
+			else throw new Exception("unkown result"); //other
 		}
 
 		internal static void MoveTo(SquareImage selected, SquareImage target)
@@ -563,17 +563,17 @@ namespace ChessRPS.Pages.MainWindowStates
 			selected.Square.Type = SquareType.Empty;
 		}
 
-		internal static void ResolveDraw(SquareImage seleceted, SquareImage target)
+		internal static void ResolveDraw(SquareImage seleceted, SquareImage target, int gameID)
 		{
-            //TODO FIX
+			//TODO FIX
 
-            //do dialog
-            //RpsDialog dialog = new RpsDialog(_context, _selected, target);
-            var draw = new DrawRPS(seleceted, target);
-            draw.ShowDialog();
+			//do dialog
+			//RpsDialog dialog = new RpsDialog(_context, _selected, target);
+			var draw = new DrawRPS(seleceted, target, gameID);
+			draw.ShowDialog();
 
-            //Battle(result, seleceted, target); 
-            
+			//Battle(result, seleceted, target); 
+
 
 			//await dialog.ShowAsync();
 

@@ -94,17 +94,22 @@ namespace ChessRPS.Pages
 				[Prefs.KEYS.token] = Prefs.Instance.Opt<int>(Prefs.KEYS.token)
 			});
 
+
 			RefreshPlayerList(json);
 		}
 
 		private void RefreshPlayerList(JObject json)
 		{
-			var players = ((JArray)json[Prefs.KEYS.playerList]).Select(jt => (name: (string)jt["name"], token: (int)jt["token"])).ToList();
-			Prefs.Instance["players"] = players;
-			CurrentPlayersList = players;
-			foreach (var p in players)
+			CurrentPlayersList = ((JArray)json[Prefs.KEYS.playerList])
+								.Select(jt => (name: (string)jt["name"], token: (int)jt["token"]))
+								.ToList();
+			Prefs.Instance["players"] = CurrentPlayersList;
+
+			//re
+			playersListBox.Items.Clear();
+			foreach (var (name, token) in CurrentPlayersList)
 			{
-				playersListBox.Items.Add(p.name);
+				playersListBox.Items.Add(name);
 			}
 		}
 

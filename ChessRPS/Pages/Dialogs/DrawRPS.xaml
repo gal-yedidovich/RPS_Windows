@@ -20,7 +20,9 @@
         </Grid.ColumnDefinitions>
 
         <ProgressBar 
+            Visibility="Collapsed"
             Name="loadBar"
+            IsIndeterminate="True"
             Grid.Row="1"
             Grid.ColumnSpan="3"
             Margin="100 20 100 20"/>
