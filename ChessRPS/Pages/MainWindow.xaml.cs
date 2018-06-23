@@ -25,6 +25,7 @@ namespace ChessRPS
 	public partial class MainWindow : Window
 	{
 		public static readonly int BOARD_SIZE = 7;
+		public static MainWindow Self { get; private set; }
 
 		internal IGameState State { get; set; }
 		public (int row, int col) HoveredPosition { get; set; }
@@ -40,9 +41,12 @@ namespace ChessRPS
 			State = new SelectFlagState(this);
 			GameSocket.Instance.OnBroadcast += OnReceivedData;
 			GameId = gameId;
+			userTxt.Text = (string)Prefs.Instance["name"];
+
+			Self = this;
 		}
 
-		private void OnReceivedData(JObject json)
+		public void OnReceivedData(JObject json)
 		{
             var type = (string)json["type"];
 
@@ -50,7 +54,8 @@ namespace ChessRPS
 			{
 				//handle chat
 			}
-			else if(type != "draw") State.OnReceivedData(json); //draw is not for us
+			else if(type != "draw")
+				State.OnReceivedData(json); //draw is not for us
 		}
 
 		private void InitBoard()
@@ -187,8 +192,13 @@ namespace ChessRPS
 
         protected override void OnClosed(EventArgs e)
         {
-            GameSocket.Instance.OnBroadcast -= OnReceivedData; //clean up
+            //GameSocket.Instance.OnBroadcast -= OnReceivedData; //clean up
             base.OnClosed(e);
         }
-    }
+
+		private void Cheat(object sender, RoutedEventArgs e)
+		{
+			State = new MyTurnState(this);
+		}
+	}
 }

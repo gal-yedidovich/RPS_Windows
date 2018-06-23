@@ -20,11 +20,25 @@
         </Grid.ColumnDefinitions>
 
         <ProgressBar 
-            Visibility="Collapsed"
             Name="loadBar"
             IsIndeterminate="True"
             Grid.Row="1"
-            Grid.ColumnSpan="3"
-            Margin="100 20 100 20"/>
+            Visibility="Collapsed"
+            Grid.Column="1"
+            Margin="20" />
+
+        <TextBlock 
+            Name="userTxt"
+            Grid.Row="1"
+            Grid.Column="0"
+            HorizontalAlignment="Center"
+            VerticalAlignment="Center" />
+
+        <TextBlock 
+            Name="oppTxt"
+            Grid.Row="1"
+            Grid.Column="2"
+            HorizontalAlignment="Center"
+            VerticalAlignment="Center" />
     </Grid>
 </Window>

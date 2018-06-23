@@ -41,14 +41,22 @@ namespace ChessRPS.Pages
 				};
 
 				progressBar.Visibility = Visibility.Visible;
-				var resposne = await MyHttpClient.Lobby.SendRequestAsync(endpoint: "/login", data: json);
+				try
+				{
+					var resposne = await MyHttpClient.Lobby.SendRequestAsync(endpoint: "/login", data: json);
+					int token = resposne.Value<int>("token");
+					Prefs.Instance["token"] = token;
+					Prefs.Instance["name"] = name;
+
+					new Lobby().Show();
+					this.Close();
+				}
+				catch (Exception ex)
+				{
+					MessageBox.Show($"Server Error: {ex.Message}");
+				}
 				progressBar.Visibility = Visibility.Hidden;
 
-				int token = resposne.Value<int>("token");
-				Prefs.Instance["token"] = token;
-
-				new Lobby().Show();
-				this.Close();
 			}
 		}
 	}

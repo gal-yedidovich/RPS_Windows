@@ -1,28 +1,17 @@
-﻿using ChessRPS.Pages.Dialogs;
-using Client.Utils;
+﻿using Client.Utils;
 using Newtonsoft.Json.Linq;
-using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 
 namespace ChessRPS.Pages
 {
-	/// <summary>
-	/// Interaction logic for Lobby.xaml
-	/// </summary>
-	public partial class Lobby : Window
+    /// <summary>
+    /// Interaction logic for Lobby.xaml
+    /// </summary>
+    public partial class Lobby : Window
 	{
 		private List<(string name, int token)> CurrentPlayersList { get; set; }
 
@@ -68,7 +57,7 @@ namespace ChessRPS.Pages
 			json["type"] = "answer";
 			json["target_token"] = Prefs.Instance.Opt<int>(Prefs.KEYS.token);
 
-			MyHttpClient.Lobby.SendRequestAsync(MyHttpClient.Endpoints.INVITE, json);
+			MyHttpClient.Lobby.SendRequestAsync(MyHttpClient.Endpoints.INVITE, json,null,null);
 
 			if (accept) GoToGame(json);
 		}
@@ -139,18 +128,20 @@ namespace ChessRPS.Pages
 		{
 			var (name, token) = CurrentPlayersList[playersListBox.SelectedIndex];
 
-			new LoadingDialog($"Inviting {name} to game", () =>
+			new LoadingDialog($"Inviting {name} to game", async () =>
 			{
-				var json = MyHttpClient.Lobby.SendRequestAsync(MyHttpClient.Endpoints.INVITE, new JObject
+				var json = await MyHttpClient.Lobby.SendRequestAsync(MyHttpClient.Endpoints.INVITE, new JObject
 				{
 					["sender_token"] = Prefs.Instance.Opt<int>(Prefs.KEYS.token),
 					["target_token"] = token,
 					["req_type"] = "invite"
-				}).Result;
+				});
 
 				var gameId = (int)json["game_id"];
 
 			}).ShowDialog();
+
+            playersListBox.SelectedIndex = -1;
 		}
 	}
 }

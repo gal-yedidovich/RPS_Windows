@@ -10,42 +10,42 @@
 	Width="1000px"
 	Height="700px">
 
-	<Grid Name="rootView" Width="1000px">
-		<Grid.ColumnDefinitions>
-			<ColumnDefinition Width="700px"/>
-			<ColumnDefinition Width="*"/>
-		</Grid.ColumnDefinitions>
+    <Grid Name="rootView" Width="1000px">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="700px"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
 
-		<Grid
+        <Grid
 			Grid.Column="1">
-			<Grid.RowDefinitions>
-				<RowDefinition Height="3*"/>
-				<RowDefinition Height="*"/>
-				
-			</Grid.RowDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="3*"/>
+                <RowDefinition Height="*"/>
 
-			<Border
+            </Grid.RowDefinitions>
+
+            <Border
 				BorderThickness="1"
 				BorderBrush="Black"
 				Grid.Row="1"/>
 
-			<ProgressBar 
+            <ProgressBar 
 				Name="progressBar"
 				VerticalAlignment="Top"
 				Height="5"
 				Grid.Row="1"/>
 
-			<StackPanel 
+            <StackPanel 
 				VerticalAlignment="Center"
 				HorizontalAlignment="Center"
 				Grid.Row="1">
 
-				<TextBlock 
+                <TextBlock 
 					Name="msgTxt"
 					TextWrapping="Wrap"
 					Padding="5"/>
 
-				<Button 
+                <Button 
 					Name="randomRspBtn"
 					Content="Random RPS"
 					Padding="5"
@@ -54,7 +54,7 @@
 					IsEnabled="False"
 					Click="OnRandomRPSClick"/>
 
-				<Button 
+                <Button 
 					Name="doneBtn"
 					Content="Start"
 					HorizontalAlignment="Center"
@@ -62,8 +62,17 @@
 					IsEnabled="False"
 					Padding="5"
 					Click="OnDoneClick" />
-			</StackPanel>
+            </StackPanel>
 
-		</Grid>
-	</Grid>
+            <TextBlock Name="userTxt" 
+                       Text="bubu" 
+                       VerticalAlignment="Bottom" 
+                       HorizontalAlignment="Center"/>
+            <Button 
+                Content="cheat" 
+                Click="Cheat" 
+                VerticalAlignment="Center" 
+                HorizontalAlignment="Center"/>
+        </Grid>
+    </Grid>
 </Window>
