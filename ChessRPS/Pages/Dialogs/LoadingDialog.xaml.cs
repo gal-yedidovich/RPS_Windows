@@ -20,18 +20,18 @@ namespace ChessRPS.Pages
 	/// </summary>
 	public partial class LoadingDialog : Window
 	{
-		Action function;
-		public LoadingDialog(string title, Action function)
+		Action onLoad;
+		public LoadingDialog(string title, Action onLoad)
 		{
 			InitializeComponent();
 			Loaded += OnLoad;
 			DialogTitle.Text = title;
-			this.function = function;
+			this.onLoad = onLoad;
 		}
 
-		private async void OnLoad(object sender, RoutedEventArgs e)
+		private void OnLoad(object sender, RoutedEventArgs e)
 		{
-			await Task.Run(function);
+			onLoad();
 			Close();
 		}
 	}

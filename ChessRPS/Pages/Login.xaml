@@ -30,6 +30,7 @@
 			</StackPanel>
 
 			<Button 
+                IsDefault="True"
 				FontSize="15"
 				Margin="10"
 				Padding="6"

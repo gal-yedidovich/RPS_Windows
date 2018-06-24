@@ -24,8 +24,9 @@ namespace Client.Utils
 				DRAW = "/game/draw",
 				RANDOM = "/game/random",
 				FLAG = "/game/flag",
-				TRAP = "/game/trap";
-		}
+				TRAP = "/game/trap",
+                CHAT = "/lobby/chat";
+        }
 
 		private static readonly MyHttpClient lobby = new MyHttpClient(8003),
 											game = new MyHttpClient(8004);

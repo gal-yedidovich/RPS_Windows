@@ -30,11 +30,13 @@
 			</Grid.ColumnDefinitions>
 
 			<ListBox
+                Name="chatListBox"
 				Grid.Row="0"
 				Padding="10"
 				Grid.ColumnSpan="2"/>
 
 			<TextBox 
+                Name="msgTxt"
 				Grid.Row="1"
 				Grid.Column="0"/>
 
