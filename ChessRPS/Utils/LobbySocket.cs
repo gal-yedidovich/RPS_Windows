@@ -21,7 +21,7 @@ namespace Client.Utils
 		private LobbySocket()
 		{
 			socket = new Socket(SocketType.Stream, ProtocolType.Tcp);
-			ep = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 15001); //port of lobby broadcasts
+			ep = new IPEndPoint(Prefs.Instance.ServerAddress, 15001); //port of lobby broadcasts
 			Connect();
 		}
 

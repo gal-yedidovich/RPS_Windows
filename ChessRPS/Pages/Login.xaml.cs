@@ -41,7 +41,7 @@ namespace ChessRPS.Pages
 				};
 
 				progressBar.Visibility = Visibility.Visible;
-				var resposne = await MyHttpClient.Lobby.SendRequestAsync(endpoint: "/login", data: json);
+				var resposne = await MyHttpClient.Lobby.SendRequestAsync(endpoint: MyHttpClient.Endpoints.LOGIN, data: json);
 				progressBar.Visibility = Visibility.Hidden;
 
 				int token = resposne.Value<int>("token");

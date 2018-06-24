@@ -17,7 +17,8 @@ namespace Client.Utils
 				LOBBY_PLAYERS = "/lobby/players",
 				INVITE = "/lobby/invite",
 				LOGOUT = "/logout",
-				GET_PORT = "/game/get_port",
+				LOGIN = "/login",
+                GET_PORT = "/game/get_port",
 				READY = "/game/ready",
 				MOVE = "/game/move",
 				DRAW = "/game/draw",
@@ -32,7 +33,7 @@ namespace Client.Utils
 		private HttpClient client;
 		private MyHttpClient(int port)
 		{
-			client = new HttpClient { BaseAddress = new Uri("http://127.0.0.1:" + port) };
+			client = new HttpClient { BaseAddress = new Uri($"http://{Prefs.Instance.ServerAddress}:{port}") };
 		}
 
 		public static MyHttpClient Lobby => lobby;

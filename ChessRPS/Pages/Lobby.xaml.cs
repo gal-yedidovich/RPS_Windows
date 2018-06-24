@@ -141,15 +141,12 @@ namespace ChessRPS.Pages
 
 			new LoadingDialog($"Inviting {name} to game", () =>
 			{
-				var json = MyHttpClient.Lobby.SendRequestAsync(MyHttpClient.Endpoints.INVITE, new JObject
+				MyHttpClient.Lobby.SendRequestAsync(MyHttpClient.Endpoints.INVITE, new JObject
 				{
 					["sender_token"] = Prefs.Instance.Opt<int>(Prefs.KEYS.token),
 					["target_token"] = token,
 					["req_type"] = "invite"
-				}).Result;
-
-				var gameId = (int)json["game_id"];
-
+				});
 			}).ShowDialog();
 		}
 	}

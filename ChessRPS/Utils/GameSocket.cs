@@ -24,7 +24,7 @@ namespace ChessRPS.Utils
 
 		private void ConnectToPort()
 		{
-			var ep = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 15002); //port of game broadcasts
+			var ep = new IPEndPoint(Prefs.Instance.ServerAddress, 15002); //port of game broadcasts
 
 			Task.Run(async () =>
 			{
