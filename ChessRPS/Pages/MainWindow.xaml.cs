@@ -25,7 +25,6 @@ namespace ChessRPS
 	public partial class MainWindow : Window
 	{
 		public static readonly int BOARD_SIZE = 7;
-		public static MainWindow Self { get; private set; }
 
 		internal IGameState State { get; set; }
 		public (int row, int col) HoveredPosition { get; set; }
@@ -42,8 +41,6 @@ namespace ChessRPS
 			GameSocket.Instance.OnBroadcast += OnReceivedData;
 			GameId = gameId;
 			userTxt.Text = (string)Prefs.Instance["name"];
-
-			Self = this;
 		}
 
 		public void OnReceivedData(JObject json)
