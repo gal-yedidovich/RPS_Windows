@@ -239,8 +239,6 @@ namespace ChessRPS.Pages.Dialogs
             {
                 this.context = context;
                 this.mySelection = mySelection;
-                //start progress bar
-                context.loadBar.Visibility = Visibility.Visible;
             }
 
             public void OnOpponentSelected(JObject json)

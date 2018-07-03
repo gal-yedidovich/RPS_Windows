@@ -6,6 +6,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace ChessRPS.Utils
@@ -26,12 +27,14 @@ namespace ChessRPS.Utils
 		{
 			var ep = new IPEndPoint(Prefs.Instance.ServerAddress, 15002); //port of game broadcasts
 
-			Task.Run(async () =>
+			//Task.Run(async () =>
+            new Thread(() => 
 			{
-				await socket.ConnectAsync(ep);
+                //await socket.ConnectAsync(ep);
+                socket.Connect(ep);
 				socket.Send(BitConverter.GetBytes(Prefs.Instance.Token));
 				ListenToServer();
-			});
+			}).Start();
 		}
 
 		private void ListenToServer()
@@ -44,9 +47,12 @@ namespace ChessRPS.Utils
 				int size = BitConverter.ToInt32(buffer, 0); //get size of data
 				buffer = new byte[size];
 				socket.Receive(buffer); //receive actual data
-				int test = Prefs.Instance.Token;
-				OnBroadcast.Invoke(JObject.Parse(Encoding.UTF8.GetString(buffer)));
-			}
+
+                var data = JObject.Parse(Encoding.UTF8.GetString(buffer));
+                if ((string)data["type"] == "heartbeat") continue; //ignore heartbeats
+
+                OnBroadcast?.Invoke(data);
+            }
 		}
 
 		public event Action<JObject> OnBroadcast;

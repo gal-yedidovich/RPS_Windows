@@ -285,9 +285,9 @@ namespace ChessRPS.Pages.MainWindowStates
                 //invoke in UI
                 if (json.ContainsKey("battle"))
                 {
-                    if (json.ContainsKey("square_type"))//reveal unkown opponent
+                    if (json.ContainsKey("square_type"))//reveal unknown opponent
                     {
-                        RevealOpponent((int)json["square_type"], from_square);
+                        RevealOpponent((string)json["square_type"], from_square);
                         await Task.Delay(300); //wait for UX - let user see opponent rps
                     }
 
@@ -306,10 +306,10 @@ namespace ChessRPS.Pages.MainWindowStates
 
         }
 
-        private void RevealOpponent(int squareType, SquareImage pawn)
+        private void RevealOpponent(string squareType, SquareImage pawn)
         {
             string path;
-            SquareType type = (SquareType)squareType;
+            SquareType type = (SquareType)Enum.Parse(typeof(SquareType), squareType, true);
 
             switch (type)
             {
@@ -405,10 +405,7 @@ namespace ChessRPS.Pages.MainWindowStates
             _selected = selected;
         }
 
-        public void Done()
-        {
-            //do nothing
-        }
+        public void Done() { }
 
         public void OnHoveringEnd(SquareImage squareImage)
         {
@@ -451,7 +448,7 @@ namespace ChessRPS.Pages.MainWindowStates
                 {
                     ["row"] = _selected.Square.Position.row,
                     ["col"] = _selected.Square.Position.col,
-                },
+                },  
                 ["to"] = new JObject
                 {
                     ["row"] = to_row,
@@ -460,7 +457,7 @@ namespace ChessRPS.Pages.MainWindowStates
             };
 
             if (target.Square.Type != SquareType.Empty && !target.Square.MyRPS)
-                json["square_type"] = (int)_selected.Square.Type;
+                json["square_type"] = _selected.Square.Type.ToString();
 
             var response = await MyHttpClient.Game.SendRequestAsync(MyHttpClient.Endpoints.MOVE, json);
             if (!(bool)response["success"]) throw new Exception($"error here - {response}");
@@ -558,12 +555,12 @@ namespace ChessRPS.Pages.MainWindowStates
             selected.Square.Type = SquareType.Empty;
         }
 
-        internal static void ResolveDraw(SquareImage seleceted, SquareImage target, int gameID)
+        internal static void ResolveDraw(SquareImage selected, SquareImage target, int gameID)
         {
-            var draw = new DrawRPS(seleceted, target, gameID, async result =>
+            var draw = new DrawRPS(selected, target, gameID, async result =>
             {
                 await Task.Delay(500);
-                Battle(result, seleceted, target, gameID);
+                Battle(result, selected, target, gameID);
             });
 
             draw.ShowDialog();

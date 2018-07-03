@@ -27,15 +27,10 @@ namespace Client.Utils
 
 		public void Connect()
 		{
-			
 			Task.Run(async () =>
 			{
 				await socket.ConnectAsync(ep);
-
-				int token = Prefs.Instance.Opt<int>(Prefs.KEYS.token);
-				var test = BitConverter.GetBytes(token);
-
-				socket.Send(test);
+				socket.Send(BitConverter.GetBytes(Prefs.Instance.Token));
 
 				ListenToServer();
 			});
@@ -53,13 +48,14 @@ namespace Client.Utils
 				buffer = new byte[size];
 				socket.Receive(buffer); //receive actual data
 
-				string data = Encoding.UTF8.GetString(buffer);
+				var data = JObject.Parse(Encoding.UTF8.GetString(buffer));
+                if ((string)data["type"] == "heartbeat") continue; //ignore heartbeats
 
-				OnRefresh?.Invoke(JObject.Parse(data));
+                OnBroadcast?.Invoke(data);
 			}
 		}
 
-		public Action<JObject> OnRefresh { get; set; }
+		public Action<JObject> OnBroadcast { get; set; }
 
 		public void Disconnect()
 		{

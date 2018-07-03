@@ -19,7 +19,7 @@ namespace ChessRPS.Pages
         public Lobby()
         {
             InitializeComponent();
-            LobbySocket.instance.OnRefresh = OnNetworkInfoHandler; //set refresh listerner
+            LobbySocket.instance.OnBroadcast = OnNetworkInfoHandler; //set refresh listerner
             LoadLobbyUsers();
         }
 
@@ -56,14 +56,14 @@ namespace ChessRPS.Pages
             chatListBox.Items.Add(msg);
         }
 
-        private void HandleInvite(MessageBoxResult result, JObject json)
+        private async void HandleInvite(MessageBoxResult result, JObject json)
         {
             bool accept = result == MessageBoxResult.Yes;
             json["accept"] = accept;
             json["type"] = "answer";
-            json["target_token"] = Prefs.Instance.Opt<int>(Prefs.KEYS.token);
+            json["target_token"] = Prefs.Instance.Token;
 
-            MyHttpClient.Lobby.SendRequestAsync(MyHttpClient.Endpoints.INVITE, json, null, null);
+            await MyHttpClient.Lobby.SendRequestAsync(MyHttpClient.Endpoints.INVITE, json);
 
             if (accept) GoToGame(json);
         }
@@ -86,7 +86,7 @@ namespace ChessRPS.Pages
             //refresh players list
             var json = await MyHttpClient.Lobby.SendRequestAsync(MyHttpClient.Endpoints.LOBBY_PLAYERS, new JObject()
             {
-                [Prefs.KEYS.token] = Prefs.Instance.Opt<int>(Prefs.KEYS.token)
+                [Prefs.KEYS.token] = Prefs.Instance.Token
             });
 
 
@@ -110,16 +110,12 @@ namespace ChessRPS.Pages
 
         protected override void OnClosing(CancelEventArgs e)
         {
-            new LoadingDialog("Exiting", () =>
+            new LoadingDialog("Exiting", async () =>
             {
-                try
+                var json = await MyHttpClient.Lobby.SendRequestAsync(MyHttpClient.Endpoints.LOGOUT, new JObject()
                 {
-                    var json = MyHttpClient.Lobby.SendRequestAsync(MyHttpClient.Endpoints.LOGOUT, new JObject()
-                    {
-                        ["token"] = Prefs.KEYS.token
-                    }).Result;
-                }
-                catch { }
+                    ["token"] = Prefs.KEYS.token
+                });
             }).ShowDialog();
 
             base.OnClosing(e);
@@ -136,9 +132,10 @@ namespace ChessRPS.Pages
                 ["msg"] = msg,
                 ["token"] = Prefs.Instance.Token,
             });
-            
+
             //add to listbox
-            if((bool)response["success"]) {
+            if ((bool)response["success"])
+            {
                 chatListBox.Items.Add($"Me: {msg}");
             }
         }
@@ -152,13 +149,10 @@ namespace ChessRPS.Pages
             {
                 var json = await MyHttpClient.Lobby.SendRequestAsync(MyHttpClient.Endpoints.INVITE, new JObject
                 {
-                    ["sender_token"] = Prefs.Instance.Opt<int>(Prefs.KEYS.token),
+                    ["sender_token"] = Prefs.Instance.Token,
                     ["target_token"] = token,
                     ["req_type"] = "invite"
                 });
-
-                var gameId = (int)json["game_id"];
-
             }).ShowDialog();
 
             playersListBox.SelectedIndex = -1;

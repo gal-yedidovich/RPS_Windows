@@ -7,30 +7,20 @@ using Client.ViewModels;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace ChessRPS
 {
-	public partial class MainWindow : Window
+    public partial class MainWindow : Window
 	{
 		public static readonly int BOARD_SIZE = 7;
 
 		internal IGameState State { get; set; }
 		public (int row, int col) HoveredPosition { get; set; }
 
-		private Grid board;
-		internal SquareImage[,] squares = new SquareImage[BOARD_SIZE, BOARD_SIZE];
+        internal SquareImage[,] squares = new SquareImage[BOARD_SIZE, BOARD_SIZE];
 
 		public MainWindow(int gameId)
 		{
@@ -57,16 +47,16 @@ namespace ChessRPS
 
 		private void InitBoard()
 		{
-			board = new Grid();
+			Board = new Grid();
 
 			for (int i = 0; i < BOARD_SIZE; i++)
 			{
-				board.RowDefinitions.Add(new RowDefinition());
-				board.ColumnDefinitions.Add(new ColumnDefinition());
+				Board.RowDefinitions.Add(new RowDefinition());
+				Board.ColumnDefinitions.Add(new ColumnDefinition());
 			}
 
-			Grid.SetColumn(board, 0);
-			rootView.Children.Add(board);
+			Grid.SetColumn(Board, 0);
+			rootView.Children.Add(Board);
 			PrepareSquares();
 		}
 
@@ -147,9 +137,8 @@ namespace ChessRPS
 
 		public TextBlock MsgTxt => msgTxt;
 
-		public Grid Board => board;
-
-		public int GameId { get; }
+        public Grid Board { get; private set; }
+        public int GameId { get; }
 
 		private async void OnRandomRPSClick(object sender, RoutedEventArgs e)
 		{
@@ -165,13 +154,15 @@ namespace ChessRPS
 				{ SquareType.Scissors, ImageFactory.RED_SCISSORS }
 			};
 
-			foreach (var entry in json)
-			{
-				int position = int.Parse(entry.Key);
-				var squareImg = squares[position / 10, position % 10];
-				squareImg.Square.Type = (SquareType)Enum.Parse(typeof(SquareType), entry.Value["type"].ToString(), true);
-				squareImg.Image.Source = ImageFactory.LoadImage(types[squareImg.Square.Type]);
-			}
+            foreach (var entry in json)
+            {
+                if (int.TryParse(entry.Key, out int position))
+                {
+                    var squareImg = squares[position / 10, position % 10];
+                    squareImg.Square.Type = (SquareType)Enum.Parse(typeof(SquareType), entry.Value["type"].ToString(), true);
+                    squareImg.Image.Source = ImageFactory.LoadImage(types[squareImg.Square.Type]);
+                }
+            }
 
 			StartBtn.IsEnabled = true;
 		}
