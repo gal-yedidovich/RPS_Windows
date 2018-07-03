@@ -163,7 +163,7 @@ namespace ChessRPS.Pages.Dialogs
                 var opp_tuple = (Opponent[index].Square.Type, Opponent[index].Image.Source);
                 var my_tuple = (mySelection.Square.Type, mySelection.Image.Source);
 
-                await Task.Delay(500); //for UX
+                await Task.Delay(1000); //for UX
 
                 if (attacker.Square.MyRPS) UpdateSquares(my_tuple, opp_tuple); //im attacking
                 else UpdateSquares(opp_tuple, my_tuple);

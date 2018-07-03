@@ -288,7 +288,7 @@ namespace ChessRPS.Pages.MainWindowStates
                     if (json.ContainsKey("square_type"))//reveal unknown opponent
                     {
                         RevealOpponent((string)json["square_type"], from_square);
-                        await Task.Delay(300); //wait for UX - let user see opponent rps
+                        await Task.Delay(1000); //wait for UX - let user see opponent rps
                     }
 
                     int result = (int)json["battle"];
@@ -469,7 +469,7 @@ namespace ChessRPS.Pages.MainWindowStates
                 square.Square.Type = (SquareType)Enum.Parse(typeof(SquareType), t, true);
 
                 _context.Dispatcher.Invoke(() => square.Image.Source = ImageFactory.LoadBlueImage(square.Square.Type));
-                await Task.Delay(300); //wait for UX - let user see opponent rps
+                await Task.Delay(1000); //wait for UX - let user see opponent rps
             }
 
             if (response.ContainsKey("battle")) //do battle
@@ -559,7 +559,7 @@ namespace ChessRPS.Pages.MainWindowStates
         {
             var draw = new DrawRPS(selected, target, gameID, async result =>
             {
-                await Task.Delay(500);
+                await Task.Delay(1000);
                 Battle(result, selected, target, gameID);
             });
 

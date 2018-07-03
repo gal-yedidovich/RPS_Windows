@@ -14,6 +14,7 @@ namespace ChessRPS.Pages
     /// </summary>
     public partial class Lobby : Window
     {
+        private LoadingDialog loadDialog;
         private List<(string name, int token)> CurrentPlayersList { get; set; }
 
         public Lobby()
@@ -42,7 +43,9 @@ namespace ChessRPS.Pages
                     });
                     break;
                 case "answer":
+                    Dispatcher.Invoke(() => loadDialog.Close());
                     if ((bool)json["accept"]) GoToGame(json);
+                    else MessageBox.Show($"{json["name"]} refused to play");
                     break;
                 case "msg":
                     string msg = $"{json["sender"]}: {json["content"]}";
@@ -140,20 +143,23 @@ namespace ChessRPS.Pages
             }
         }
 
-        private void OnPlayerSelected(object sender, SelectionChangedEventArgs e)
+        private async void OnPlayerSelected(object sender, SelectionChangedEventArgs e)
         {
             if (playersListBox.SelectedIndex == -1) return;
             var (name, token) = CurrentPlayersList[playersListBox.SelectedIndex];
 
-            new LoadingDialog($"Inviting {name} to game", async () =>
+            //new LoadingDialog($"Inviting {name} to game", async () =>
+            //{
+            var json = await MyHttpClient.Lobby.SendRequestAsync(MyHttpClient.Endpoints.INVITE, new JObject
             {
-                var json = await MyHttpClient.Lobby.SendRequestAsync(MyHttpClient.Endpoints.INVITE, new JObject
-                {
-                    ["sender_token"] = Prefs.Instance.Token,
-                    ["target_token"] = token,
-                    ["req_type"] = "invite"
-                });
-            }).ShowDialog();
+                ["sender_token"] = Prefs.Instance.Token,
+                ["target_token"] = token,
+                ["req_type"] = "invite"
+            });
+            //}).ShowDialog();
+
+            loadDialog = new LoadingDialog($"Inviting {name} to game", null);
+            loadDialog.ShowDialog();
 
             playersListBox.SelectedIndex = -1;
         }

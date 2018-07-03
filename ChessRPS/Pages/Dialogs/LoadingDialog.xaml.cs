@@ -15,24 +15,34 @@ using System.Windows.Shapes;
 
 namespace ChessRPS.Pages
 {
-	/// <summary>
-	/// Interaction logic for LoadingDialog.xaml
-	/// </summary>
-	public partial class LoadingDialog : Window
-	{
-		Action onLoad;
-		public LoadingDialog(string title, Action onLoad)
-		{
-			InitializeComponent();
-			Loaded += OnLoad;
-			DialogTitle.Text = title;
-			this.onLoad = onLoad;
-		}
+    /// <summary>
+    /// Interaction logic for LoadingDialog.xaml
+    /// </summary>
+    public partial class LoadingDialog : Window
+    {
+        Action onLoad;
 
-		private void OnLoad(object sender, RoutedEventArgs e)
-		{
-			onLoad();
-			Close();
-		}
-	}
+        public LoadingDialog(string title, Action onLoad)
+        {
+            InitializeComponent();
+            Loaded += OnLoad;
+            DialogTitle.Text = title;
+            this.onLoad = onLoad;
+        }
+
+        private void OnLoad(object sender, RoutedEventArgs e)
+        {
+            if (onLoad != null)
+            {
+                onLoad();
+                Close();
+            }
+        }
+
+        public LoadingDialog SetTitle(string title)
+        {
+            DialogTitle.Text = title;
+            return this;
+        }
+    }
 }
