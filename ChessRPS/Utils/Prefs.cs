@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text;
@@ -8,39 +9,33 @@ using Newtonsoft.Json.Linq;
 
 namespace Client.Utils
 {
-	class Prefs
+	static class Prefs
 	{
-		public static class KEYS
+		private static readonly string filePath = "";
+		private static readonly JObject json = ReadJson();
+		private static void WriteJson() => File.WriteAllText(filePath, json.ToString());
+
+		public static IPAddress ServerIP => IPAddress.Parse("84.109.106.163");
+		public static int Token { get; set; }
+		public static string Name
 		{
-			public static string
-				token = "token",
-                playerList = "player_list",
-                serverIP = "ipAddress";
+			get => (string)json["name"];
+			set
+			{
+				json["name"] = value;
+				WriteJson();
+			}
 		}
 
-
-		public static Prefs Instance = new Prefs();
-
-        readonly Dictionary<string, object> cache = new Dictionary<string, object>();
-
-        private Prefs() {
-            cache[KEYS.serverIP] = IPAddress.Parse("84.109.106.163");
-        }
-
-		public int Token
+		private static JObject ReadJson()
 		{
-			get => (int)cache[KEYS.token];
-			private set => cache[KEYS.token] = value;
+			if (File.Exists(filePath))
+			{
+				File.WriteAllText(filePath, "{}");
+				return new JObject();
+			}
+			string data = File.ReadAllText(filePath);
+			return JObject.Parse(data);
 		}
-
-        public IPAddress ServerAddress => (IPAddress)cache[KEYS.serverIP];
-
-        public object this[string key]
-		{
-			get => cache[key];
-			set => cache[key] = value;
-		}
-
-		public T Opt<T>(string key) => (T)cache[key];
 	}
 }

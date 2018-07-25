@@ -75,7 +75,7 @@
       <DependentUpon>Login.xaml</DependentUpon>
     </Compile>
     <Compile Include="Pages\MainPageStates\ITurnState.cs" />
-    <Compile Include="Utils\GameSocket.cs" />
+    <Compile Include="Utils\SocketClient.cs" />
     <Compile Include="Utils\MyHttpClient.cs" />
     <Compile Include="Utils\Prefs.cs" />
     <Compile Include="ViewModels\SquareImage.cs" />
