@@ -2,6 +2,7 @@
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
@@ -11,50 +12,52 @@ using System.Threading.Tasks;
 
 namespace ChessRPS.Utils
 {
-    public class GameSocket
+    public class SocketClient
     {
-        public static readonly GameSocket Instance = new GameSocket();
+        public static readonly SocketClient Game = new SocketClient(15001);
+        public static readonly SocketClient Lobby = new SocketClient(15002);
 
         private Socket socket;
+        private readonly int port;
 
-        private GameSocket()
+        private SocketClient(int port)
         {
-            socket = new Socket(SocketType.Stream, ProtocolType.Tcp);
-            ConnectToPort();
+            this.port = port;
         }
 
-        private void ConnectToPort()
+        private async void ListenToServer()
         {
-            var ep = new IPEndPoint(Prefs.Instance.ServerAddress, 15002); //port of game broadcasts
-
-            Task.Run(async () =>
-            //new Thread(() => 
+            try
             {
+                socket = new Socket(SocketType.Stream, ProtocolType.Tcp);
+                var ep = new IPEndPoint(Prefs.Instance.ServerAddress, port); //port of game broadcasts
                 await socket.ConnectAsync(ep);
-                //socket.Connect(ep);
                 socket.Send(BitConverter.GetBytes(Prefs.Instance.Token));
-                ListenToServer();
-            });
-           //}).Start();
+                while (true)
+                {
 
+                    byte[] buffer = new byte[4];
+                    socket.Receive(buffer); //receive data size
+
+                    int size = BitConverter.ToInt32(buffer, 0); //get size of data
+                    buffer = new byte[size];
+                    socket.Receive(buffer); //receive actual data
+
+                    var data = JObject.Parse(Encoding.UTF8.GetString(buffer));
+                    if ((string)data["type"] == "heartbeat") continue; //ignore heartbeats
+
+                    OnBroadcast?.Invoke(data);
+                }
+            }
+            catch (Exception e)
+            {
+                Debug.WriteLine(e.Message);
+            }
         }
 
-        private void ListenToServer()
+        private void Kill()
         {
-            while (true)
-            {
-                byte[] buffer = new byte[4];
-                socket.Receive(buffer); //receive data size
-
-                int size = BitConverter.ToInt32(buffer, 0); //get size of data
-                buffer = new byte[size];
-                socket.Receive(buffer); //receive actual data
-
-                var data = JObject.Parse(Encoding.UTF8.GetString(buffer));
-                if ((string)data["type"] == "heartbeat") continue; //ignore heartbeats
-
-                OnBroadcast?.Invoke(data);
-            }
+            socket?.Close();
         }
 
         public event Action<JObject> OnBroadcast;

@@ -28,7 +28,7 @@ namespace ChessRPS
 
 			InitBoard();
 			State = new SelectFlagState(this);
-			GameSocket.Instance.OnBroadcast += OnReceivedData;
+			SocketClient.Game.OnBroadcast += OnReceivedData;
 			GameId = gameId;
 			userTxt.Text = (string)Prefs.Instance["name"];
 		}

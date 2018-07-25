@@ -21,11 +21,11 @@ namespace Client.Utils
 
 		public static Prefs Instance = new Prefs();
 
-		private Prefs() {
+        readonly Dictionary<string, object> cache = new Dictionary<string, object>();
+
+        private Prefs() {
             cache[KEYS.serverIP] = IPAddress.Parse("84.109.106.163");
         }
-
-		Dictionary<string, object> cache = new Dictionary<string, object>();
 
 		public int Token
 		{

@@ -69,11 +69,6 @@
                        Text="bubu" 
                        VerticalAlignment="Bottom" 
                        HorizontalAlignment="Center"/>
-            <Button 
-                Content="cheat" 
-                Click="Cheat" 
-                VerticalAlignment="Center" 
-                HorizontalAlignment="Center"/>
         </Grid>
     </Grid>
 </Window>

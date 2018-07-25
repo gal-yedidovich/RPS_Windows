@@ -40,7 +40,7 @@ namespace ChessRPS.Pages.Dialogs
 
             userTxt.Text = (string)Prefs.Instance["name"];
 
-            GameSocket.Instance.OnBroadcast += OnReceive; //register to event
+            SocketClient.Game.OnBroadcast += OnReceive; //register to event
             InitBoard();
         }
 
@@ -169,7 +169,7 @@ namespace ChessRPS.Pages.Dialogs
                 else UpdateSquares(opp_tuple, my_tuple);
 
                 onComplete(result); //callback
-                GameSocket.Instance.OnBroadcast -= OnReceive; //register to event
+                SocketClient.Game.OnBroadcast -= OnReceive; //register to event
 
                 Close();
             });
